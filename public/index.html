@@ -4,33 +4,81 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hotel Estrella, Barcelona</title>
+  <meta name="description" content="Write to Hotel Estrella in Barcelona and get an answer at once.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23C8553D' d='M12 1.5l2.6 7.9H23l-6.8 4.9 2.6 8-6.8-4.9-6.8 4.9 2.6-8L1 9.4h8.4z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <section class="weather" aria-label="Barcelona weather, next 7 days">
+  <!-- A large, very faint star behind the page: the hotel's mark -->
+  <svg class="watermark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.9H23l-6.8 4.9 2.6 8-6.8-4.9-6.8 4.9 2.6-8L1 9.4h8.4z"/></svg>
+
+  <header class="masthead">
+    <a class="brand" href="/">
+      <svg class="brand-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.9H23l-6.8 4.9 2.6 8-6.8-4.9-6.8 4.9 2.6-8L1 9.4h8.4z"/></svg>
+      <span>Hotel Estrella</span>
+    </a>
+    <p class="local-time" id="local-time">Barcelona</p>
+  </header>
+
+  <!-- Weather strip: the page fetches the 7-day forecast itself -->
+  <section class="weather" aria-labelledby="weather-title">
+    <div class="weather-head">
+      <h2 id="weather-title">Barcelona this week</h2>
+      <p>Highest temperature and chance of rain</p>
+    </div>
     <ol id="forecast" class="forecast"></ol>
     <p id="forecast-status" class="forecast-status">Loading the forecast&hellip;</p>
   </section>
 
-  <main>
-    <h1>Hotel Estrella</h1>
-    <p class="intro">Write to us and we will answer you here. For anything we cannot settle at once, a member of our team will reply by e-mail.</p>
+  <main class="layout">
+    <section class="intro">
+      <p class="overline">Guest messages</p>
+      <h1>Write to us.<br><span>We answer at once.</span></h1>
+      <p class="lede">Ask about your stay, our policies or your own booking. When something needs a person, a member of our team will reply to you by e-mail.</p>
 
-    <form id="message-form">
-      <label for="name">Name</label>
-      <input id="name" name="name" type="text" autocomplete="name" required>
+      <dl class="facts">
+        <div><dt>Check-in</dt><dd>from 15:00</dd></div>
+        <div><dt>Check-out</dt><dd>by 11:00</dd></div>
+        <div><dt>Breakfast</dt><dd>07:00&ndash;10:30</dd></div>
+      </dl>
+    </section>
 
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" autocomplete="email" required>
+    <section class="card" aria-label="Send us a message">
+      <form id="message-form" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+          <p class="hint">We use it to find your booking and to reply.</p>
+        </div>
+        <div class="field">
+          <label for="message">Please leave your message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
 
-      <label for="message">Please leave your message</label>
-      <textarea id="message" name="message" rows="6" required></textarea>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
 
-      <button type="submit" id="send">Send</button>
-    </form>
+        <div class="actions">
+          <button type="submit" id="send">
+            <span class="label">Send</span>
+            <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
+          </button>
+          <p class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to send</p>
+        </div>
+      </form>
 
-    <div id="reply" class="reply" aria-live="polite" hidden></div>
+      <!-- The conversation: the guest's message, then the hotel's reply -->
+      <div id="thread" class="thread" aria-live="polite"></div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <svg class="brand-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.9H23l-6.8 4.9 2.6 8-6.8-4.9-6.8 4.9 2.6-8L1 9.4h8.4z"/></svg>
+    <p>Hotel Estrella, Barcelona</p>
+  </footer>
 
   <script src="app.js"></script>
 </body>
