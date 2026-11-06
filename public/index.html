@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hotel Estrella, Barcelona</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="weather" aria-label="Barcelona weather, next 7 days">
+    <ol id="forecast" class="forecast"></ol>
+    <p id="forecast-status" class="forecast-status">Loading the forecast&hellip;</p>
+  </section>
+
+  <main>
+    <h1>Hotel Estrella</h1>
+    <p class="intro">Write to us and we will answer you here. For anything we cannot settle at once, a member of our team will reply by e-mail.</p>
+
+    <form id="message-form">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required>
+
+      <label for="message">Please leave your message</label>
+      <textarea id="message" name="message" rows="6" required></textarea>
+
+      <button type="submit" id="send">Send</button>
+    </form>
+
+    <div id="reply" class="reply" aria-live="polite" hidden></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<!-- This page has no login yet: anyone who can open /staff can read every guest request. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff: guest requests</title>
+  <style>
+    body { margin: 16px; font-family: system-ui, sans-serif; font-size: 13px; color: #1B2A41; background: #FFFFFF; }
+    h1 { font-size: 16px; margin: 0 0 8px; }
+    .filters button { font: inherit; padding: 2px 10px; margin-right: 4px; cursor: pointer; }
+    .filters button.active { font-weight: 700; }
+    #count { margin-left: 8px; color: #5B6676; }
+    .table-wrap { overflow-x: auto; margin-top: 8px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #CCD2D9; padding: 3px 6px; text-align: left; vertical-align: top; }
+    th { background: #F1F3F5; position: sticky; top: 0; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #F7F8FA; }
+    tbody tr.selected { background: #FBEAE6; }
+    td.time { white-space: nowrap; }
+    #trace { margin-top: 12px; padding: 8px; border: 1px solid #CCD2D9; background: #F7F8FA; white-space: pre-wrap; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Guest requests</h1>
+  <div class="filters">
+    <button data-filter="ALL" class="active">All</button>
+    <button data-filter="ESCALATED">Escalated</button>
+    <button data-filter="ANSWERED">Answered</button>
+    <span id="count"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Time</th><th>Name</th><th>Email</th><th>Message</th><th>Department</th><th>Urgency</th><th>Status</th><th>Reply</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div id="trace" hidden></div>
+
+  <script>
+    let requests = [];
+    let filter = "ALL";
+
+    // One readable line per trace entry.
+    function traceLine(entry) {
+      if (entry.type === "model") {
+        return `Step ${entry.step}: model call, stop reason ${entry.stop_reason}, asked for a tool: ${entry.asked_for_tool ? "yes" : "no"}`;
+      }
+      if (entry.type === "tool") {
+        const stub = entry.stubbed ? " (stubbed)" : "";
+        return `  Tool ${entry.name}${stub} ${JSON.stringify(entry.arguments)} -> ${entry.result}`;
+      }
+      if (entry.type === "answer") return `Final answer: ${entry.text}`;
+      return JSON.stringify(entry);
+    }
+
+    function showTrace(request, tr) {
+      document.querySelectorAll("tbody tr").forEach((row) => row.classList.remove("selected"));
+      tr.classList.add("selected");
+      const box = document.getElementById("trace");
+      const lines = (request.trace || []).map(traceLine);
+      if (request.note) lines.push(`Note: ${request.note}`);
+      box.textContent = `Trace for ${request.name}, ${request.time}\n\n` + (lines.join("\n") || "No trace saved.");
+      box.hidden = false;
+    }
+
+    function render() {
+      const tbody = document.getElementById("rows");
+      tbody.textContent = "";
+      const shown = requests.filter((r) => filter === "ALL" || r.status === filter);
+      for (const request of shown) {
+        const tr = document.createElement("tr");
+        const cells = [
+          new Date(request.time).toLocaleString("en-GB"),
+          request.name, request.email, request.message,
+          request.department, request.urgency, request.status, request.reply,
+        ];
+        cells.forEach((value, i) => {
+          const td = document.createElement("td");
+          td.textContent = value || ""; // textContent: guest text is never treated as HTML
+          if (i === 0) td.className = "time";
+          tr.appendChild(td);
+        });
+        tr.addEventListener("click", () => showTrace(request, tr));
+        tbody.appendChild(tr);
+      }
+      document.getElementById("count").textContent = `${shown.length} of ${requests.length}`;
+    }
+
+    document.querySelectorAll(".filters button").forEach((button) => {
+      button.addEventListener("click", () => {
+        filter = button.dataset.filter;
+        document.querySelectorAll(".filters button").forEach((b) => b.classList.toggle("active", b === button));
+        document.getElementById("trace").hidden = true;
+        render();
+      });
+    });
+
+    fetch("/api/requests")
+      .then((response) => response.json())
+      .then((data) => { requests = data; render(); });
+  </script>
+</body>
+</html>
